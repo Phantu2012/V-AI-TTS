@@ -1,0 +1,7 @@
+{
+  "name": "V-AI Voice Studio",
+  "description": "An AI-powered Text-to-Speech and Voice Cloning application specialized for the Vietnamese market, enabling content creators to generate high-quality audio from text and clone their own voice securely.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
