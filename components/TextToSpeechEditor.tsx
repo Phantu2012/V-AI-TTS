@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+
+import React from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Voice, User, GeneratedAudio } from '../types';
 import { AudioPlayer } from './AudioPlayer';
 import { ttsService } from '../services/ttsService';
@@ -16,176 +18,242 @@ interface TextToSpeechEditorProps {
 
 const GenerateIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-        <path d="M10 3.5a1.5 1.5 0 013 0V4a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1v1a1 1 0 01-1 1H6a1 1 0 01-1-1v-1H4a1 1 0 01-1-1V6a1 1 0 011-1h3a1 1 0 001-1v-.5z" />
-        <path d="M10 9a2 2 0 100-4 2 2 0 000 4zM3 15a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z" />
+        <path d="M10 3.5a1.5 1.5 0 013 0V4a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V6a1 1 0 10-2 0v1h-1V6a1 1 0 10-2 0v1h-1V6a1 1 0 10-2 0v1H8V6a1 1 0 00-1-1H4a1 1 0 01-1-1V4a1 1 0 011-1h3a1 1 0 001-1V3.5zM3 11a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" />
+         <path d="M10 18a.5.5 0 00.5-.5v-2.036a.5.5 0 00-.5-.5.5.5 0 00-.5.5v2.036a.5.5 0 00.5.5zM8 15a.5.5 0 00.5.5h3a.5.5 0 000-1h-3a.5.5 0 00-.5.5z" />
     </svg>
 );
 
-const TOTAL_CHAR_LIMIT = 200000;
+const CancelIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+    </svg>
+);
+
+const ScriptBuilderIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+    </svg>
+);
+
+
+const DEFAULT_PLACEHOLDER = "Nhập văn bản của bạn ở đây. Bạn có thể sử dụng SSML để kiểm soát giọng nói tốt hơn.";
 
 export const TextToSpeechEditor: React.FC<TextToSpeechEditorProps> = ({ selectedVoice, speed, pitch, user, updateCharacterCount, onAddToLibrary, showToast }) => {
-    const [text, setText] = useState('Chào mừng bạn đến với V-AI Voice Studio. Hãy nhập văn bản bạn muốn chuyển thành giọng nói tại đây.');
-    const [generationStatus, setGenerationStatus] = useState<string | null>(null);
+    const [text, setText] = useState(DEFAULT_PLACEHOLDER);
+    const [isSsml, setIsSsml] = useState(false);
+    const [styleInstructions, setStyleInstructions] = useState('');
     const [generatedAudioUrl, setGeneratedAudioUrl] = useState<string | null>(null);
-    const [isSsmlMode, setIsSsmlMode] = useState(false);
+    const [generationStatus, setGenerationStatus] = useState<string | null>(null);
+    const [isGenerating, setIsGenerating] = useState(false);
+    const lastGeneratedAudioRef = useRef<{blob: Blob, text: string} | null>(null);
 
-    const isGenerating = generationStatus !== null;
-
+    // Revoke old URL when a new one is created or component unmounts
     useEffect(() => {
-        // This effect's cleanup will run ONLY when the component unmounts.
-        // This prevents the race condition where starting a new generation cancels itself.
+        const lastUrl = lastGeneratedAudioRef.current?.blob ? URL.createObjectURL(lastGeneratedAudioRef.current.blob) : null;
         return () => {
-            ttsService.cancel();
-        }
-    }, []);
-    
-    const handleModeToggle = () => {
-        const newMode = !isSsmlMode;
-        setIsSsmlMode(newMode);
-        // If switching to SSML and the text is the default placeholder, show the example
-        if (newMode && text.startsWith('Chào mừng bạn')) {
-            setText(SSML_EXAMPLE);
-        }
-    };
-
-
-    const handleGenerate = async () => {
-        if (!text.trim() || isGenerating) return;
-        
-        const totalCharCost = text.length;
-        if (totalCharCost > TOTAL_CHAR_LIMIT) {
-            showToast(`Văn bản quá dài. Giới hạn tối đa là ${TOTAL_CHAR_LIMIT.toLocaleString('vi-VN')} ký tự.`, 'error');
-            return;
-        }
-
-        if (user.charactersUsed + totalCharCost > user.characterLimit) {
-            showToast("Bạn đã vượt quá số ký tự cho phép trong tháng.", 'error');
-            return;
-        }
-
-        if (generatedAudioUrl && generatedAudioUrl.startsWith('blob:')) {
-            URL.revokeObjectURL(generatedAudioUrl);
-        }
-        setGeneratedAudioUrl(null);
-
-        const onProgress = (status: { stage: 'generating' | 'merging' | 'done', current?: number, total?: number }) => {
-            if (status.stage === 'generating') {
-                setGenerationStatus(`Đang tạo phần ${status.current}/${status.total}...`);
-            } else if (status.stage === 'merging') {
-                setGenerationStatus('Đang ghép các phần...');
+            if (lastUrl && lastUrl.startsWith('blob:')) {
+                URL.revokeObjectURL(lastUrl);
             }
         };
+    }, [generatedAudioUrl]);
 
-        const useApi = ttsService.isApiConfigured() && selectedVoice.googleApiName && !selectedVoice.isCloned;
+    const handleGenerate = async () => {
+        if (!text.trim() || text.trim() === DEFAULT_PLACEHOLDER) {
+            showToast('Vui lòng nhập văn bản để tạo âm thanh.', 'error');
+            return;
+        }
         
+        if (!ttsService.isApiConfigured()) {
+            showToast('Vui lòng nhập Google API Key để sử dụng tính năng này.', 'error');
+            return;
+        }
+
+        const charCount = text.length;
+        if (user.charactersUsed + charCount > user.characterLimit) {
+            showToast('Bạn đã vượt quá giới hạn ký tự hàng tháng.', 'error');
+            return;
+        }
+
+        setIsGenerating(true);
+        setGenerationStatus("Đang khởi tạo...");
+        setGeneratedAudioUrl(null);
+        if (lastGeneratedAudioRef.current) {
+            lastGeneratedAudioRef.current = null;
+        }
+
         try {
-            if (useApi) {
-                const audioBlob = await ttsService.generateSpeech({ text, voice: selectedVoice, speed, pitch, onProgress, isSsml: isSsmlMode });
-                
-                if (audioBlob) {
-                    const audioUrl = URL.createObjectURL(audioBlob);
-                    setGeneratedAudioUrl(audioUrl);
-                    
-                    onAddToLibrary({
-                        id: `audio-${Date.now()}`,
-                        text: text,
-                        voiceName: selectedVoice.name,
-                        audioUrl: audioUrl,
-                        createdAt: new Date(),
-                    });
+            // Use Google Cloud TTS API
+            const audioBlob = await ttsService.generateSpeech({
+                text,
+                voice: selectedVoice,
+                speed,
+                pitch,
+                isSsml,
+                styleInstructions,
+                onProgress: (status) => {
+                    if (status.stage === 'generating_ssml') {
+                        setGenerationStatus('AI đang tạo kịch bản theo phong cách...');
+                    } else if (status.stage === 'generating') {
+                        setGenerationStatus(`Đang tạo âm thanh... (${status.current}/${status.total})`);
+                    } else if (status.stage === 'merging') {
+                        setGenerationStatus('Đang ghép các đoạn âm thanh...');
+                    }
                 }
-            } else {
-                 setGenerationStatus("Đang tạo...");
-                 await ttsService.generateSpeechWithBrowser({ text, voice: selectedVoice, speed, pitch });
-                 setGeneratedAudioUrl("generated_by_browser_tts");
-                 if (selectedVoice.isCloned) {
-                    showToast("Đã tạo âm thanh bằng giọng nói nhân bản (sử dụng giọng trình duyệt).", "success");
-                 } else {
-                    showToast("API Key không hợp lệ hoặc chưa nhập. Đã tạo âm thanh bằng giọng nói mặc định của trình duyệt.", "success");
-                 }
-            }
-            updateCharacterCount(totalCharCost);
+            });
+            
+            // Store the raw blob and original text for the library
+            lastGeneratedAudioRef.current = { blob: audioBlob, text: text };
+            
+            const url = URL.createObjectURL(audioBlob);
+            setGeneratedAudioUrl(url);
+            updateCharacterCount(charCount);
 
         } catch (error: any) {
-            console.error("TTS generation error:", error);
-            if (error.message !== "Operation cancelled by user.") {
-                const userFriendlyMessage = error.message.includes("Cloud Text-to-Speech API has not been used")
-                    ? "Lỗi API: Dịch vụ Text-to-Speech chưa được kích hoạt. Vui lòng kích hoạt trong Google Cloud Console và thử lại."
-                    : `Lỗi tạo âm thanh: ${error.message}`;
-                showToast(userFriendlyMessage, 'error');
-            }
+            console.error("Speech generation error:", error);
+            const errorMessage = error.message || 'Đã xảy ra lỗi không xác định.';
+            showToast(errorMessage, 'error');
+            setGeneratedAudioUrl(null);
         } finally {
+            setIsGenerating(false);
             setGenerationStatus(null);
         }
     };
+    
+    const handleCancel = () => {
+        ttsService.cancel();
+        setIsGenerating(false);
+        setGenerationStatus(null);
+    };
+    
+    const handleAddToLibrary = () => {
+        if (!lastGeneratedAudioRef.current) return;
+        
+        // IMPORTANT: Create a distinct copy (clone) of the blob for the library.
+        // This prevents the library's URL from being invalidated when the editor generates a new audio.
+        const audioBlobClone = lastGeneratedAudioRef.current.blob.slice();
+
+        const newAudio: GeneratedAudio = {
+            id: new Date().getTime().toString(),
+            text: lastGeneratedAudioRef.current.text,
+            voiceName: selectedVoice.name,
+            audioUrl: URL.createObjectURL(audioBlobClone),
+            createdAt: new Date(),
+        };
+        onAddToLibrary(newAudio);
+        showToast('Đã thêm vào thư viện âm thanh.');
+    };
+
+    const handleToggleSsml = () => {
+        const nextIsSsml = !isSsml;
+        setIsSsml(nextIsSsml);
+
+        if (nextIsSsml) {
+            // Smart SSML toggle logic
+            const currentText = text.trim();
+            const isDefaultText = currentText === DEFAULT_PLACEHOLDER || currentText === "";
+            const isAlreadySsml = currentText.startsWith('<speak>') && currentText.endsWith('</speak>');
+
+            if (!isAlreadySsml) {
+                if (isDefaultText) {
+                    setText(SSML_EXAMPLE);
+                } else {
+                    setText(`<speak>${currentText}</speak>`);
+                }
+            }
+        } else {
+            // When turning off SSML, remove tags if they exist
+            const ssmlRegex = /<speak>(.*?)<\/speak>/s;
+            const match = text.match(ssmlRegex);
+            if (match && match[1]) {
+                // A simple way to clean up some tags for readability
+                const cleanedText = match[1].replace(/<[^>]+>/g, ' ').replace(/\s\s+/g, ' ').trim();
+                setText(cleanedText || DEFAULT_PLACEHOLDER);
+            }
+        }
+    };
+
+    const characterCount = text === DEFAULT_PLACEHOLDER ? 0 : text.length;
 
     return (
-        <div className="flex flex-col h-full">
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-white">Trình Soạn Thảo</h2>
-                {/* SSML Toggle Switch */}
-                <div className="flex items-center space-x-2">
-                    <span className={`text-sm font-medium ${!isSsmlMode ? 'text-white' : 'text-gray-400'}`}>Văn bản thường</span>
-                    <button
-                        onClick={handleModeToggle}
-                        className={`relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-brand-primary ${isSsmlMode ? 'bg-brand-primary' : 'bg-gray-600'}`}
-                        aria-label="Toggle SSML mode"
-                    >
-                        <span
-                            className={`inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200 ${isSsmlMode ? 'translate-x-5' : 'translate-x-0'}`}
+        <div className="flex flex-col flex-grow">
+            <div className="flex justify-between items-center mb-2">
+                 <div className="flex items-center space-x-4">
+                    <h2 className="text-2xl font-bold text-white">Chuyển Đổi Văn Bản</h2>
+                    <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          id="ssml-toggle"
+                          checked={isSsml}
+                          onChange={handleToggleSsml}
+                          className="h-4 w-4 rounded border-gray-300 text-brand-primary focus:ring-brand-secondary"
                         />
-                    </button>
-                    <span className={`text-sm font-medium ${isSsmlMode ? 'text-white' : 'text-gray-400'}`}>SSML</span>
-                </div>
+                        <label htmlFor="ssml-toggle" className="ml-2 text-sm font-medium text-gray-300">
+                          SSML
+                        </label>
+                    </div>
+                 </div>
             </div>
+
             <div className="relative flex-grow">
                 <textarea
                     value={text}
                     onChange={(e) => setText(e.target.value)}
-                    placeholder="Nhập văn bản..."
-                    className="w-full h-full p-4 bg-gray-900 border-2 border-gray-700 rounded-lg resize-none focus:outline-none focus:border-brand-primary text-gray-100 text-lg leading-relaxed font-mono"
-                    maxLength={TOTAL_CHAR_LIMIT}
+                    onFocus={() => text === DEFAULT_PLACEHOLDER && setText('')}
+                    onBlur={() => text.trim() === '' && setText(DEFAULT_PLACEHOLDER)}
+                    placeholder="Nhập văn bản của bạn ở đây..."
+                    className="w-full h-full min-h-[200px] bg-gray-900 border-2 border-gray-700 rounded-lg p-4 resize-none focus:outline-none focus:border-brand-primary transition-colors"
+                    aria-label="Text to speech input"
                 />
-                <div className="absolute bottom-4 right-4 text-sm text-gray-400">
-                    {text.length.toLocaleString('vi-VN')} / {TOTAL_CHAR_LIMIT.toLocaleString('vi-VN')}
+                 <div className="absolute bottom-3 right-3 text-sm text-gray-500">
+                    {characterCount.toLocaleString('vi-VN')} ký tự
                 </div>
             </div>
-             {!isSsmlMode && (
-                <p className="text-xs text-gray-500 mt-2">
-                    Văn bản dài sẽ được tự động xử lý và ghép thành một file âm thanh hoàn chỉnh.
-                </p>
-            )}
-            <div className="mt-4">
+            
+            <div className="mt-4 p-4 bg-gray-900 rounded-lg border-2 border-gray-700">
+                <div className="flex items-center mb-2">
+                    <ScriptBuilderIcon />
+                    <h3 className="text-lg font-semibold text-white">Script builder</h3>
+                </div>
+                <div>
+                    <label htmlFor="style-instructions" className="text-sm font-medium text-gray-300">Style instructions</label>
+                    <input
+                        id="style-instructions"
+                        type="text"
+                        value={styleInstructions}
+                        onChange={(e) => setStyleInstructions(e.target.value)}
+                        placeholder="Read aloud in a warm, welcoming tone"
+                        className="mt-1 w-full bg-gray-700/50 border border-gray-600 rounded-md p-2 text-sm focus:outline-none focus:border-brand-primary"
+                        aria-label="Style instructions for text to speech"
+                    />
+                </div>
+            </div>
+
+             <div className="mt-4">
                 <AudioPlayer audioUrl={generatedAudioUrl} generationStatus={generationStatus} />
             </div>
-            <div className="mt-6 flex flex-col sm:flex-row gap-4">
-                <button
-                    onClick={handleGenerate}
-                    disabled={isGenerating || !text.trim()}
-                    className="flex-1 inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-brand-primary hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors"
-                >
-                    <GenerateIcon />
-                    {isGenerating ? (generationStatus || 'Đang tạo...') : 'Tạo Âm Thanh'}
-                </button>
-                <button
-                    disabled={!generatedAudioUrl || isGenerating || generatedAudioUrl === "generated_by_browser_tts"}
-                    onClick={() => {
-                        if (generatedAudioUrl && generatedAudioUrl.startsWith('blob:')) {
-                            const link = document.createElement('a');
-                            link.href = generatedAudioUrl;
-                            link.download = 'v-ai-voice.mp3';
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                        }
-                    }}
-                    title={!generatedAudioUrl || generatedAudioUrl === "generated_by_browser_tts" ? "Tạo một file âm thanh để tải xuống" : "Tải xuống file MP3"}
-                    className="flex-1 inline-flex items-center justify-center px-6 py-3 border border-gray-600 text-base font-medium rounded-md text-gray-300 bg-gray-700 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+
+            <div className="mt-4 flex flex-col sm:flex-row gap-4">
+                 {isGenerating ? (
+                    <button onClick={handleCancel} className="flex-1 inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-gray-600 hover:bg-gray-700">
+                        <CancelIcon />
+                        Hủy
+                    </button>
+                ) : (
+                    <button onClick={handleGenerate} className="flex-1 inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-brand-primary hover:bg-indigo-700">
+                        <GenerateIcon />
+                        Tạo Âm Thanh
+                    </button>
+                )}
+                
+                <button 
+                    onClick={handleAddToLibrary} 
+                    disabled={!lastGeneratedAudioRef.current}
+                    className="flex-1 inline-flex items-center justify-center px-6 py-3 border border-gray-600 text-base font-medium rounded-md text-gray-300 hover:text-white hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                        <path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" />
                     </svg>
-                    Tải xuống (MP3)
+                    Thêm vào Thư viện
                 </button>
             </div>
         </div>

@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect } from 'react';
 import { Header } from './components/Header';
 import { Dashboard } from './components/Dashboard';
@@ -15,17 +16,40 @@ const App: React.FC = () => {
   const [userVoices, setUserVoices] = useState<Voice[]>(AVAILABLE_VOICES);
   const [toast, setToast] = useState<ToastState | null>(null);
   const [audioLibrary, setAudioLibrary] = useState<GeneratedAudio[]>([]);
-  // Initialize with an empty string for a clean start.
-  const [apiKey, setApiKey] = useState("");
+  const [apiKey, setApiKey] = useState<string>(() => {
+    // Tải API key từ localStorage khi khởi tạo
+    return localStorage.getItem('googleApiKey') || '';
+  });
 
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => {
+        setToast(null);
+    }, 5000); // Increased duration for error messages
+  };
 
+  // Lưu API key vào localStorage mỗi khi nó thay đổi
   useEffect(() => {
-    // Configure the TTS service whenever the API key changes.
-    // WARNING: Do not expose API keys on the client-side in a production application.
-    // This key should be handled by a secure backend service.
-    ttsService.configure({ apiKey });
+    if (apiKey) {
+      localStorage.setItem('googleApiKey', apiKey);
+    } else {
+      localStorage.removeItem('googleApiKey');
+    }
+  }, [apiKey]);
 
-    // Cleanup blob URLs on window close to prevent memory leaks
+  // Cấu hình TTS service với API key từ state
+  useEffect(() => {
+    if (apiKey) {
+      ttsService.configure({ apiKey: apiKey });
+      console.log("V-AI Voice Studio: TTS Service configured with provided API Key.");
+    } else {
+      ttsService.configure({ apiKey: '' }); // Vô hiệu hóa nếu không có key
+      console.warn("V-AI Voice Studio: API Key is not set.");
+    }
+  }, [apiKey]);
+  
+  // Effect for cleaning up blob URLs to prevent memory leaks.
+  useEffect(() => {
     const handleBeforeUnload = () => {
         audioLibrary.forEach(audio => {
             if (audio.audioUrl.startsWith('blob:')) {
@@ -38,7 +62,7 @@ const App: React.FC = () => {
     return () => {
         window.removeEventListener('beforeunload', handleBeforeUnload);
     }
-  }, [audioLibrary, apiKey]);
+  }, [audioLibrary]);
 
 
   const handleCloningComplete = (newVoiceName: string) => {
@@ -54,13 +78,6 @@ const App: React.FC = () => {
     setCloningModalOpen(false);
     showToast(`Giọng nói "${newVoiceName}" đã được tạo thành công!`);
   };
-  
-  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
-    setToast({ message, type });
-    setTimeout(() => {
-        setToast(null);
-    }, 5000); // Increased duration for error messages
-  };
 
   const handleAddToLibrary = (audio: GeneratedAudio) => {
     setAudioLibrary(prev => [audio, ...prev]);
@@ -72,6 +89,10 @@ const App: React.FC = () => {
         URL.revokeObjectURL(audioToDelete.audioUrl);
     }
     setAudioLibrary(prev => prev.filter(audio => audio.id !== id));
+  };
+  
+  const handleApiKeyChange = (newApiKey: string) => {
+    setApiKey(newApiKey);
   };
 
 
@@ -87,9 +108,9 @@ const App: React.FC = () => {
           audioLibrary={audioLibrary}
           onAddToLibrary={handleAddToLibrary}
           onDeleteFromLibrary={handleDeleteFromLibrary}
-          apiKey={apiKey}
-          onApiKeyChange={setApiKey}
           showToast={showToast}
+          apiKey={apiKey}
+          onApiKeyChange={handleApiKeyChange}
         />
       </main>
       

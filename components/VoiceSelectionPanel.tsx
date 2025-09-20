@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Voice, Region, Plan } from '../types';
 
@@ -77,6 +78,7 @@ interface VoiceSelectionPanelProps {
 export const VoiceSelectionPanel: React.FC<VoiceSelectionPanelProps> = ({ voices, selectedVoiceId, onSelectVoice, speed, setSpeed, pitch, setPitch, onCloneVoiceClick, userPlan, apiKey, onApiKeyChange }) => {
   const samplePlayerRef = useRef<HTMLAudioElement | null>(null);
   const [playingSampleId, setPlayingSampleId] = useState<string | null>(null);
+  const [showApiKey, setShowApiKey] = useState(false);
 
   useEffect(() => {
     samplePlayerRef.current = new Audio();
@@ -142,20 +144,42 @@ export const VoiceSelectionPanel: React.FC<VoiceSelectionPanelProps> = ({ voices
 
   return (
     <div className="flex flex-col h-full">
-      <h2 className="text-2xl font-bold text-white mb-4">Thư Viện Giọng Đọc</h2>
+      <h2 className="text-2xl font-bold text-white mb-4">Cài đặt & Giọng đọc</h2>
       
-      <div className="space-y-4 mb-6">
-          <div className="space-y-1">
-              <label htmlFor="api-key" className="text-sm font-medium text-gray-300">Google API Key</label>
+      <div className="mb-6">
+          <label htmlFor="api-key-input" className="text-sm font-medium text-gray-300">Google API Key</label>
+          <div className="relative mt-1">
               <input
-                id="api-key"
-                type="password"
-                value={apiKey}
-                onChange={(e) => onApiKeyChange(e.target.value)}
-                placeholder="Nhập Google Cloud TTS API Key của bạn"
-                className="w-full bg-gray-900 border border-gray-600 rounded-md p-2 text-sm focus:outline-none focus:border-brand-primary"
+                  id="api-key-input"
+                  type={showApiKey ? 'text' : 'password'}
+                  value={apiKey}
+                  onChange={(e) => onApiKeyChange(e.target.value)}
+                  placeholder="Nhập API Key của bạn tại đây"
+                  className="w-full bg-gray-900 border-2 border-gray-600 rounded-md p-2 pr-10 text-sm focus:outline-none focus:border-brand-primary"
+                  aria-label="Google API Key"
               />
+              <button
+                  type="button"
+                  onClick={() => setShowApiKey(!showApiKey)}
+                  className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-white"
+                  aria-label={showApiKey ? "Ẩn API Key" : "Hiện API Key"}
+              >
+                  {showApiKey ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                        <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.27 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.367zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
+              </button>
           </div>
+          <p className="text-xs text-gray-500 mt-1">API key của bạn được lưu trữ an toàn trên trình duyệt.</p>
+      </div>
+
+      <div className="space-y-4 mb-6 pt-6 border-t border-gray-700">
           <div>
             <div className="flex justify-between items-center mb-1">
                 <label htmlFor="speed" className="text-sm font-medium text-gray-300">Tốc độ</label>

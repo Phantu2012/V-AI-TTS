@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { TextToSpeechEditor } from './TextToSpeechEditor';
 import { VoiceSelectionPanel } from './VoiceSelectionPanel';
@@ -12,12 +13,12 @@ interface DashboardProps {
   audioLibrary: GeneratedAudio[];
   onAddToLibrary: (audio: GeneratedAudio) => void;
   onDeleteFromLibrary: (id: string) => void;
+  showToast: (message: string, type?: 'success' | 'error') => void;
   apiKey: string;
   onApiKeyChange: (key: string) => void;
-  showToast: (message: string, type?: 'success' | 'error') => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ user, voices, onCloneVoiceClick, updateCharacterCount, audioLibrary, onAddToLibrary, onDeleteFromLibrary, apiKey, onApiKeyChange, showToast }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ user, voices, onCloneVoiceClick, updateCharacterCount, audioLibrary, onAddToLibrary, onDeleteFromLibrary, showToast, apiKey, onApiKeyChange }) => {
   const [selectedVoiceId, setSelectedVoiceId] = useState<string>(voices[0]?.id || '');
   const [speed, setSpeed] = useState(1);
   const [pitch, setPitch] = useState(1);

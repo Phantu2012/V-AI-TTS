@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 interface AudioPlayerProps {
@@ -44,7 +45,8 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioUrl, generationSt
         );
     }
     
-    if (audioUrl.startsWith('data:audio/mp3;base64,')) {
+    // Handles both blob URLs from the API and any potential base64 URLs
+    if (audioUrl.startsWith('blob:') || audioUrl.startsWith('data:audio/')) {
         return (
             <div className="w-full bg-gray-700/50 rounded-lg p-3">
                 <audio
@@ -59,18 +61,23 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioUrl, generationSt
         );
     }
 
-    // This handles the browser TTS success case where no file is generated
-    return (
-        <div className="w-full bg-green-500/10 border border-green-500 rounded-lg p-4 flex items-center space-x-4">
-             <div className="w-10 h-10 flex items-center justify-center bg-green-500/20 rounded-full">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-             </div>
-            <div className="flex-grow">
-                <p className="font-semibold text-white">Âm thanh đã được tạo thành công!</p>
-                <p className="text-sm text-gray-300">Âm thanh đã được phát. Nhấn tạo lại để nghe phiên bản mới.</p>
+    // This handles the browser TTS success case where no playable file is generated
+    if (audioUrl === 'browser-tts-success') {
+        return (
+            <div className="w-full bg-green-500/10 border border-green-500 rounded-lg p-4 flex items-center space-x-4">
+                 <div className="w-10 h-10 flex items-center justify-center bg-green-500/20 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                 </div>
+                <div className="flex-grow">
+                    <p className="font-semibold text-white">Âm thanh đã được tạo thành công!</p>
+                    <p className="text-sm text-gray-300">Âm thanh đã được phát. Nhấn tạo lại để nghe phiên bản mới.</p>
+                </div>
             </div>
-        </div>
-    );
+        );
+    }
+
+    // Fallback in case of an unexpected audioUrl value
+    return null;
 };
