@@ -33,17 +33,17 @@ const VoiceItem: React.FC<VoiceItemProps> = ({ voice, isSelected, isPlayingSampl
     className={`p-4 rounded-lg cursor-pointer transition-all duration-200 border-2 ${isSelected ? 'bg-brand-primary/20 border-brand-primary' : 'bg-gray-700/50 border-transparent hover:border-gray-600'}`}
   >
     <div className="flex justify-between items-center">
-      <div className="flex items-center space-x-3">
+      <div className="flex items-start space-x-3">
         {voice.sampleAudio && (
             <button 
                 onClick={onPlaySample} 
                 title={`Nghe thử giọng ${voice.name}`}
-                className="text-gray-400 hover:text-brand-secondary transition-colors rounded-full p-1 -ml-1"
+                className="text-gray-400 hover:text-brand-secondary transition-colors rounded-full p-1 mt-1 -ml-1 flex-shrink-0"
             >
                 <PlaySampleIcon isPlaying={isPlayingSample} />
             </button>
         )}
-        <div>
+        <div className="flex-grow">
             <div className="flex items-center space-x-2">
                 {voice.isCloned && (
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
@@ -53,9 +53,12 @@ const VoiceItem: React.FC<VoiceItemProps> = ({ voice, isSelected, isPlayingSampl
                 <p className="font-semibold text-white">{voice.name}</p>
             </div>
             <p className="text-sm text-gray-400">{voice.gender} - {voice.region}</p>
+            {voice.description && (
+              <p className="text-xs text-gray-500 mt-1 italic">{voice.description}</p>
+            )}
         </div>
       </div>
-      <div className={`w-4 h-4 rounded-full border-2 ${isSelected ? 'bg-brand-primary border-brand-primary' : 'border-gray-500'}`}></div>
+      <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ${isSelected ? 'bg-brand-primary border-brand-primary' : 'border-gray-500'}`}></div>
     </div>
   </div>
 );

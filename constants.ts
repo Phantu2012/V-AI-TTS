@@ -4,7 +4,7 @@ import { Voice, Region, Gender, User, Plan } from './types';
 // A valid, short audio clip encoded as a base64 data URL.
 // This is the most reliable method to prevent any network or CORS-related playback errors
 // for the "Listen Sample" feature.
-const SPEECH_SAMPLE_URL = 'data:audio/wav;base64,UklGRrwDAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YbIDAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKC..gAAgAAAABAAZGF0YXvJ/v//xP75/tD+8v7S/uj/2/5m/6T9Mf5a/gn9//3Z+z/76fpk+Vb2eO355yfnVd8p2mLTgtA+zJ7AZrhTq5CgX5Z5iG6DYXhVbU9wT2tLbEtsT3BNbVRyV3Ba';
+const SPEECH_SAMPLE_URL = 'data:audio/wav;base64,UklGRrwDAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YbIDAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCg..AAABAAZGF0YXvJ///xP75/D+8v7S/uj/2/5m/6T9Mf5a/gn9//3Z+z/76fpk+Vb2eO355yfnVd8p2mLTgtA+zJ7AZrhTq5CgX5Z5iG6DYXhVbU9wT2tLbEtsT3BNbVRyV3Ba';
 
 // Fix: Add and export MOCK_USER, AVAILABLE_VOICES, and CLONING_SENTENCES
 export const MOCK_USER: User = {
@@ -90,26 +90,101 @@ export const AVAILABLE_VOICES: Voice[] = [
     {
       id: 'en-us-male-wavenet-d',
       name: 'David (Trầm ấm)',
+      description: 'Giọng nam trầm ấm tiêu chuẩn, đa dụng cho nhiều loại nội dung.',
       gender: Gender.Male,
       region: Region.US,
       sampleAudio: SPEECH_SAMPLE_URL,
       googleApiName: 'en-US-Wavenet-D',
     },
     {
+      id: 'en-us-wavenet-f-female',
+      name: 'Standard Female (WaveNet)',
+      description: 'Giọng nữ tự nhiên, rõ ràng, là lựa chọn thay thế cho Studio.',
+      gender: Gender.Female,
+      region: Region.US,
+      sampleAudio: SPEECH_SAMPLE_URL,
+      googleApiName: 'en-US-Wavenet-F',
+    },
+    {
       id: 'en-us-male-studio-m',
-      name: 'John (Studio)',
+      name: 'Natural Male (Studio)',
+      description: 'Chất lượng studio, tự nhiên và chân thực nhất. Chi phí cao hơn.',
       gender: Gender.Male,
       region: Region.US,
       sampleAudio: SPEECH_SAMPLE_URL,
       googleApiName: 'en-US-Studio-M',
     },
+     {
+      id: 'en-us-studio-f-female',
+      name: 'Natural Female (Studio)',
+      description: 'Chất lượng studio, tự nhiên và chân thực nhất. Chi phí cao hơn.',
+      gender: Gender.Female,
+      region: Region.US,
+      sampleAudio: SPEECH_SAMPLE_URL,
+      googleApiName: 'en-US-Studio-F',
+    },
     {
       id: 'en-us-male-news-n',
-      name: 'News Anchor (Rõ ràng)',
+      name: 'News Anchor',
+      description: 'Rõ ràng, chuyên nghiệp, phù hợp cho tin tức, thông báo.',
       gender: Gender.Male,
       region: Region.US,
       sampleAudio: SPEECH_SAMPLE_URL,
       googleApiName: 'en-US-News-N',
+    },
+    {
+      id: 'en-us-neural2-d-male',
+      name: 'Mentor Vibe',
+      description: 'Trầm ấm, uy lực. Hoàn hảo cho podcast truyền cảm hứng.',
+      gender: Gender.Male,
+      region: Region.US,
+      sampleAudio: SPEECH_SAMPLE_URL,
+      googleApiName: 'en-US-Neural2-D',
+    },
+    {
+      id: 'en-us-neural2-f-female',
+      name: 'Healing Thoughts',
+      description: 'Êm ái, gần gũi. Tuyệt vời cho audio chữa lành, tâm sự đêm khuya.',
+      gender: Gender.Female,
+      region: Region.US,
+      sampleAudio: SPEECH_SAMPLE_URL,
+      googleApiName: 'en-US-Neural2-F',
+    },
+    {
+      id: 'en-us-neural2-i-female',
+      name: 'Youthful Empathy',
+      description: 'Trẻ trung, đồng cảm. Phù hợp cho nội dung hướng đến giới trẻ (22-34).',
+      gender: Gender.Female,
+      region: Region.US,
+      sampleAudio: SPEECH_SAMPLE_URL,
+      googleApiName: 'en-US-Neural2-I',
+    },
+    {
+      id: 'en-us-neural2-g-male',
+      name: 'Balanced & Clear',
+      description: 'Rõ ràng, ít âm xuýt (sibilance). Cân bằng giữa lý trí và cảm xúc.',
+      gender: Gender.Male,
+      region: Region.US,
+      sampleAudio: SPEECH_SAMPLE_URL,
+      googleApiName: 'en-US-Neural2-G',
+    },
+    {
+      id: 'en-gb-neural2-b-male',
+      name: 'UK Philosopher',
+      description: 'Giọng Anh nam, thích hợp cho các chủ đề triết học, đọc thư.',
+      gender: Gender.Male,
+      region: Region.UK,
+      sampleAudio: SPEECH_SAMPLE_URL,
+      googleApiName: 'en-GB-Neural2-B',
+    },
+    {
+      id: 'en-gb-neural2-a-female',
+      name: 'UK Storyteller',
+      description: 'Giọng Anh nữ, thích hợp cho các chủ đề triết học, đọc thư.',
+      gender: Gender.Female,
+      region: Region.UK,
+      sampleAudio: SPEECH_SAMPLE_URL,
+      googleApiName: 'en-GB-Neural2-A',
     },
 ];
 
@@ -121,4 +196,4 @@ export const CLONING_SENTENCES = [
     "Chúng tôi cam kết bảo vệ dữ liệu và quyền riêng tư của người dùng.",
 ];
 
-export const SSML_EXAMPLE = `<speak>Đây là một ví dụ về SSML. Bạn có thể thêm một khoảng nghỉ <break time="1s"/> và nhấn mạnh một <emphasis level="strong">từ</emphasis> cụ thể.</speak>`;
+export const SSML_EXAMPLE = `<speak>Welcome to The Midnight Spark. Breathe. <break time="320ms"/> Tonight we turn late night thoughts into midnight motivation. Open your notebook. Write one line. <emphasis level="strong">Let the noise go.</emphasis></speak>`;

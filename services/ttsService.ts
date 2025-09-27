@@ -228,12 +228,17 @@ class TtsService {
     private async generateSpeechWithApi(options: Pick<GenerateSpeechOptions, 'text' | 'voice' | 'speed' | 'pitch' | 'isSsml'>): Promise<string> {
         const GOOGLE_API_URL = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${this.apiKey}`;
         
-        const languageCode = options.voice.googleApiName?.startsWith('en-') ? 'en-US' : 'vi-VN';
+        let languageCode = 'vi-VN';
+        if (options.voice.googleApiName?.startsWith('en-US')) {
+            languageCode = 'en-US';
+        } else if (options.voice.googleApiName?.startsWith('en-GB')) {
+            languageCode = 'en-GB';
+        }
 
-        // FIX: Newer voices (like Neural2) require SSML.
-        // This logic ensures that if we're using a Neural2 voice with plain text,
+        // FIX: Newer voices (like Neural2 or Studio) require SSML.
+        // This logic ensures that if we're using one of these voices with plain text,
         // we automatically wrap the text in <speak> tags to make it a valid SSML request.
-        const needsSsmlWrapper = options.voice.googleApiName?.includes('Neural2') && !options.isSsml;
+        const needsSsmlWrapper = (options.voice.googleApiName?.includes('Neural2') || options.voice.googleApiName?.includes('Studio')) && !options.isSsml;
 
         const requestBody = {
             input: (options.isSsml || needsSsmlWrapper) 

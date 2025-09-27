@@ -3,6 +3,7 @@ export enum Region {
   Central = 'Miền Trung',
   South = 'Miền Nam',
   US = 'Tiếng Anh - Mỹ',
+  UK = 'Tiếng Anh - Anh',
 }
 
 export enum Gender {
@@ -15,6 +16,7 @@ export interface Voice {
   name: string;
   gender: Gender;
   region: Region;
+  description?: string; // Note for what content the voice is suitable for
   sampleAudio?: string; // URL to a sample audio file
   isCloned?: boolean;
   googleApiName?: string; // Specific voice name for Google Cloud TTS API
